@@ -1,0 +1,71 @@
+---
+title: "Introduction"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE, message=FALSE}
+library(tidyverse)
+library(fivethirtyeight)
+library(leaflet)
+library(sf)
+library(maps)
+library(USAboundaries)
+library(tidycensus)
+library(tmaptools)
+library(wesanderson)
+library(fec16)
+```
+
+
+## Nice to Meet You
+Hi! I am Sophia, an undeclared undergrad who wishes to help people by combining mathematics with social sciences. I am most comfortable with R, but I also use Stata. [Email me](mailto:ssilovsky@smith.edu) if you have any questions or just wish to reach out. Have a splendid day! 
+
+******
+
+### Plots 
+
+Here are a few example plots just to demonstrate what I know. :blush:
+
+```{r, echo=FALSE}
+USA_map <-  maps::map("state", plot = FALSE, fill = TRUE)
+USA_sf <- USA_map %>% 
+  st_as_sf(crs = 4326)
+
+ok_ma <- USA_sf %>% 
+  filter(ID == "oklahoma" |ID == "massachusetts")
+
+pity_city <- tibble(
+  name = c("Northampton", "Oklahoma City"), 
+  lat = c(42.3251, 35.4676), 
+  lon = c(-72.6412, -97.5164)
+)
+pity_city_sf <- pity_city %>%
+  st_as_sf(coords = c("lon", "lat"), crs = 4326)
+
+ggplot()+
+  geom_sf(data = USA_sf)+
+  geom_sf(data = ok_ma, fill= "#023047")+
+  geom_sf(data = pity_city_sf, aes(col=name), size = 2)+
+  coord_sf(xlim = c(-71, -102), ylim = c(43, 33))+
+  labs(title = "My Two Lives", color = "Cities")+
+  scale_color_manual(labels = c("Northampton", "Oklahoma City"), values = c("#ffb703", "#fb8500"))
+``` 
+
+```{r, echo=FALSE, warning=FALSE}
+inter_contributions <- contributions %>% 
+filter(transaction_tp== "24A" | transaction_tp =="24E") %>% 
+  select(transaction_tp, cand_id, transaction_amt)
+
+new_campaigns <- campaigns %>% 
+  select(cand_id, cand_ici, cand_pty_affiliation, coh_bop, coh_cop)
+  
+new_new <- inter_contributions %>% 
+  inner_join(new_campaigns, by = "cand_id")
+
+ggplot(new_new, aes(x= cand_ici, y = transaction_amt, color=cand_pty_affiliation)) + geom_count()+facet_wrap(~transaction_tp)+scale_color_manual(labels = c("Democrat", "Republican"), values = c("blue", "red"))+labs(color = "Party Affiliation", size = "Count", title = "Amount of USD Spent Based on Incumbancy Status", x = "Incumbancy Seat Status", y = "Transaction Amount", caption = "24A is a transaction made opposing the election of a candidate. 
+                                                                                                                                                                                                                       24E is a transaction made supporting the election of a candidate")+ylim(0,2e+05)
+```
