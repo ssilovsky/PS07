@@ -17,3 +17,4 @@ Here are a few example plots just to demonstrate what I know. :blush:
 ![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
 
 ![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
+*used with data from the fec16 package
